@@ -385,14 +385,14 @@ const GiftSection = () => {
 }
 
 export default function Home() {
-  const [start, setStart] = useState(true);
+  const [start, setStart] = useState(false);
   const refAudio = useRef<HTMLAudioElement>(null);
-  // useEffect(()=>{
-  //   if(!start) return;
-  //   if(refAudio.current){
-  //     refAudio.current.play();
-  //   }
-  // },[start]);
+  useEffect(()=>{
+    if(!start) return;
+    if(refAudio.current){
+      refAudio.current.play();
+    }
+  },[start]);
   return (
     <>
       <Head>
