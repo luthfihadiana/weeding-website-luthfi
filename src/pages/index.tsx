@@ -1,9 +1,15 @@
 import { Transition } from "@headlessui/react";
 import Head from "next/head";
 import Image from "next/image";
-import { FC, ReactNode, RefObject, useEffect, useRef, useState } from "react";
-
+import { ReactNode, RefObject, useEffect, useRef, useState } from "react";
 import Logo from "../../public/images/logo.png"
+import Ornament3 from "../../public/images/ornament-3.png";
+import Ornament1 from "../../public/images/ornament-1.png";
+import Ornament4 from "../../public/images/ornament-4.png";
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
+import Autoplay from "embla-carousel-autoplay"
+
 
 export function useIsVisible(ref: RefObject<HTMLElement>): boolean {
   const [isIntersecting, setIntersecting] = useState(false);
@@ -48,7 +54,7 @@ const WelcomeSection = ({
   onStart,
 }:{onStart:()=> void, start:boolean}) => (
   <section
-    className={`min-h-[calc(100vh-36px)] w-full flex flex-col items-center gap-6 snap-start`}
+    className={`min-h-[calc(100vh-36px)] w-full flex flex-col items-center gap-6 justify-center`}
   >
     <h1 className={`text-4xl text-center font-aesthetic text-primary-light`}>
       The Weeding of<br/>
@@ -62,13 +68,13 @@ const WelcomeSection = ({
     />
     <div className="flex flex-col items-center">
       <h2 className="text-xl font-bold text-primary">Minggu, 12 Mei 2024</h2>
-      <p className={`text-lg text-center m-12 text-primary-light`}>
+      <p className={`text-lg text-center my-4 text-primary-light`}>
         Special Invitation to: <br/>
         <strong className="text-primary-dark">NAMA_TAMU_UNDANGAN</strong>
       </p>
       <button 
         onClick={onStart}
-        className={`transition-all ease-in duration-700 ${!start ? "bg-primary-light text-whit hover:bg-slate-400 rounded-xl text-white" : "bg-none text-primary-dark font-bold"} w-2/3  p-2 flex flex-row align-middle justify-center gap-2 animate-bounce `}
+        className={`w-full transition-all ease-in duration-700 ${!start ? "bg-primary-light text-whit hover:bg-slate-400 rounded-xl text-white" : "bg-none text-primary-dark font-bold"} w-2/3  p-2 flex flex-row align-middle justify-center gap-2 animate-bounce `}
       >
         {start && <span className="material-symbols-outlined">expand_more</span>}
         {!start ? "Buka undangan": "Scroll ke bawah"}
@@ -77,19 +83,35 @@ const WelcomeSection = ({
   </section>
 )
 
-const BrideSection = () => (
+const IntroSection = () => (
   <Section
-    className={`flex flex-col items-center gap-8`}
+    className={`flex flex-col items-center gap-4 justify-center`}
     id="bride-section"
   >
-    <p className={`font-arabic text-4xl text-center text-primary-light`}>
-      بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ  
-    </p>
+    <div className="relative 
+    w-full bg-primary-light/[0.1] shadow-sm p-[32px] backdrop-opacity-100 rounded-lg md:max-w-[425px] leading-relaxed
+    before:content-[''] before:w-[100px] before:h-[100px] before:bg-ornament-1 before:absolute before:top-[-40px] before:left-[-8px] before:bg-contain before:bg-no-repeat before:rotate-[45deg]
+    after:content-[''] after:w-[100px] after:h-[100px] after:bg-ornament-3 after:absolute after:bottom-[-20px] after:right-[-10px] after:bg-contain after:bg-no-repeat after:rotate[]
+    ">
+      <p className={`font-arabic text-4xl text-center text-primary-light mb-4`}>
+        بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ  
+      </p>
+      <p className="text-primary-dark text-xl">{'"'}Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir.{'"'}</p>
+      <p className="mt-4 font-bold text-primary text-xl">QS. Ar-Rum: 21</p>
+    </div>
+  </Section>
+);
+
+const BrideSection = () => (
+  <Section
+    className={`flex flex-col items-center gap-4 justify-center`}
+    id="bride-section"
+  >
     <p className={`text-2xl text-center font-aesthetic text-primary-dark`}>Assalamualaikum Warrahmatullahi Wabarakatuh</p>
     <p className={`text-lg text-center text-primary lg:w-1/2`}>
       Kami mengundang Bapak/Ibu/Saudara/i serta kerabat sekalian untuk menghadiri acara pernikahan kami:
     </p>
-    <div className="grid grid-cols-2 gap-10 flex-wrap w-full lg:w-1/2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 flex-wrap w-full lg:w-1/2">
       <div className="flex flex-col items-center gap-2 flex-1">
         <Image
           src="https://picsum.photos/id/64/200/200"
@@ -186,11 +208,11 @@ const LocationSection = () => {
 
   return(
     <Section
-      className={`flex flex-col gap-8 items-center`}
+      className={`flex flex-col gap-8 items-center justify-center`}
     >
-      <h1 className={`text-4xl text-center font-aesthetic text-primary-light`}>
+      <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>
         Waktu & Tempat Acara
-      </h1>
+      </h2>
       <Countdown num={seconds}/>
       <div className="flex flex-col items-center">
         <p className="text-md font-bold text-center text-primary w-full md:w-1/2 md:text-xl">
@@ -225,6 +247,81 @@ const LocationSection = () => {
   );
 };
 
+const GallerySection = () => {
+  const [api, setApi] = useState<CarouselApi>()
+  const [apiCursor,setCusorApi] = useState<CarouselApi>();
+  const onClickCursor = (index:number) => {
+    api?.scrollTo(index);
+  }
+  useEffect(() => {
+    if (!api || !apiCursor) {
+      return
+    }
+    api.on("select", () => {
+      apiCursor.scrollTo(api.selectedScrollSnap())
+    })
+  }, [api, apiCursor])
+  return(
+    <Section
+      className={`flex flex-col items-center gap-4 justify-center`}
+      id="bride-section"
+    >
+      <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Gallery</h2>
+      <div className="relative w-full flex flex-col items-center justify-center  max-w-[425px]
+        before:content-[''] before:w-[100px] before:h-[100px] before:bg-ornament-1 before:absolute before:top-[-40px] before:left-[-8px] before:bg-contain before:bg-no-repeat before:rotate-[45deg] before:z-20
+      ">
+        <Carousel 
+          className="w-full mt-4 relative"
+          setApi={setApi}
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          plugins={[
+            Autoplay({
+              delay: 5000,
+            }),
+          ]}
+        >
+          <CarouselContent>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <CarouselItem key={index}>
+                <Card>
+                  <CardContent className="flex aspect-square items-center justify-center p-6">
+                    <span className="text-4xl font-semibold">{index + 1}</span>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+        <div className="absolute bottom-0 right-0 w-full bg-primary-dark/[0.1] rounded-b-lg">
+          <div className="flex bottom-0 right-0 w-full max-w-[240px] gap-2 p-2 my-0 mx-auto">
+            <Carousel className="w-full" 
+              setApi={setCusorApi}
+              opts={{
+                align: "start",
+                loop: true,
+              }} 
+            >
+              <CarouselContent>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <CarouselItem key={index} className="basis-1/2 min-[375px]:basis-1/3 flex justify-center">
+                    <div className="bg-white rounded-lg w-[80px] aspect-square flex items-center justify-center shadow-sm" onClick={()=> onClickCursor(index)}>
+                      <div className="flex justify-center align-center ">
+                        {index + 1}
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
+}
 
 
 const GreetingSection = () => {
@@ -233,7 +330,7 @@ const GreetingSection = () => {
   const [isPresent, setIsPresent] = useState(true);
   return(
     <Section
-      className={`flex flex-col items-center gap-8`}
+      className={`flex flex-col items-center gap-4 justify-center`}
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Ucapan & Doa</h2>
       <div className="flex flex-row justify-center gap-10 w-full max-w-xl md:w-1/2">
@@ -327,7 +424,7 @@ const GreetingSection = () => {
             </Transition>
             <div className="flex justify-between align-middle gap-2">
               <textarea
-                className="rounded-lg flex-1 p-2"
+                className="rounded-lg flex-1 p-2 resize-y"
                 placeholder="Tuliskan pesanmu"
               />
               <div className="h-min p-1 rounded-lg text-white bg-primary-light text-center flex align-middle justify-center cursor-pointer">
@@ -345,14 +442,14 @@ const GiftSection = () => {
   const [show, setShow] = useState(false);
   return(
     <Section
-      className={`flex flex-col items-center gap-8 snap-start`}
+      className={`flex flex-col items-center gap-4 justify-center`}
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Kirim Hadiah</h2>
-      <p className="text-center text-md text-primary-dark w-full md:max-w-lg">Tanpa mengurangi rasa hormat, bagi anda yang ingin memberikan tanda kasih untuk mempelai, dapat melalui tombol menu berikut:</p>
-      <button onClick={()=>setShow(true)} className={`transition-all ease-in duration-700 ${show ? "opacity-0 scale-0" : "opacity-100"} bg-primary-light p-2 rounded-xl text-white flex flex-row align-middle justify-center gap-2 hover:bg-slate-400`}>
+      <p className="text-center text-xl text-primary-dark w-full md:max-w-lg">Tanpa mengurangi rasa hormat, bagi anda yang ingin memberikan tanda kasih untuk mempelai, dapat melalui tombol menu berikut:</p>
+      <button onClick={()=>setShow(true)} className={`transition-all ease-in duration-700 ${show ? "opacity-0 invisible absolute z-[-1] scale-0" : "opacity-100 visible static scale-100"} bg-primary-light p-2 rounded-xl text-white flex flex-row align-middle justify-center gap-2 hover:bg-slate-400`}>
         Kirim Hadiah di sini
       </button>
-      <div className={`transition-all ease-in duration-700 grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:max-w-lg ${!show ? "opacity-0 scale-0" : "opacity-100"}`}>
+      <div className={`transition-all ease-in duration-700 grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:max-w-lg ${!show ? "opacity-0 invisible absolute z-[-1] scale-0" : "opacity-100 visible static scale-100"}`}>
         <div>
           <h3 className="font-bold text-center text-primary-dark mb-4">Nomor Rekening Mempelai <br/>Wanita</h3>
           <div className="shadow-md p-2 h-30 w-full bg-gradient-red rounded-xl text-white">
@@ -384,6 +481,26 @@ const GiftSection = () => {
   );
 }
 
+const ClosingSection = () => (
+  <Section
+    className={`flex flex-col items-center justify-center`}
+  >
+    <div className="w-full sm:w-1/2 max-w-[450px] flex flex-col items-center gap-6 relative pt-[32px]">
+      <Image src={Ornament4} width={400} height={150} alt="ornament4" className="absolute top-[-80px] min-[375px]:top-[-120px] left-1/2 translate-x-[-50%]"/>
+      <p className="text-primary-dark text-center w-full text-xl">
+        Merupakan sebuah kehormatan dan kebahagiaan bagi kami apabila Bapak/ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kedua mempelai
+      </p>
+      <p className="text-primary text-2xl text-center">
+        Hormat Kami yang berbahagia
+      </p>
+      <h2 className={`text-5xl text-center font-aesthetic text-primary-light`}>
+        Luthfi <br/>&<br/> Astri
+      </h2>
+      <Image src={Ornament3} width={150} height={150} alt="ornament3"/>
+    </div>
+  </Section>
+);
+
 export default function Home() {
   const [start, setStart] = useState(false);
   const refAudio = useRef<HTMLAudioElement>(null);
@@ -400,15 +517,18 @@ export default function Home() {
         <meta property="og:title" content="Weeding of Astri & Luthfi" key="title" />
       </Head>
       <main
-        className={`px-2 py-8 min-w-screen md:px-6 flex flex-col gap-8 ${!start ? "max-h-screen overflow-y-hidden" : ""}`}
+        className={`px-4 min-w-screen flex flex-col gap-8 ${!start ? "max-h-screen overflow-y-hidden" : ""}`}
       >
         <WelcomeSection onStart={()=> {
           setStart(true);
         }} start={start}/>
+        <IntroSection/>
         <BrideSection/>
         <LocationSection/>
+        <GallerySection/>
         <GreetingSection/>
         <GiftSection/>
+        <ClosingSection/>
         {start && <audio
           ref={refAudio}
           loop
