@@ -4,7 +4,6 @@ import Image from "next/image";
 import { ReactNode, RefObject, useEffect, useRef, useState } from "react";
 import Logo from "../../public/images/logo.png"
 import Ornament3 from "../../public/images/ornament-3.png";
-import Ornament1 from "../../public/images/ornament-1.png";
 import Ornament4 from "../../public/images/ornament-4.png";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +54,7 @@ const WelcomeSection = ({
 }:{onStart:()=> void, start:boolean}) => (
   <section
     className={`min-h-[calc(100vh-36px)] w-full flex flex-col items-center gap-6 justify-center`}
+    id="welcome-section"
   >
     <h1 className={`text-4xl text-center font-aesthetic text-primary-light`}>
       The Weeding of<br/>
@@ -86,7 +86,7 @@ const WelcomeSection = ({
 const IntroSection = () => (
   <Section
     className={`flex flex-col items-center gap-4 justify-center`}
-    id="bride-section"
+    id="welcome-section"
   >
     <div className="relative 
     w-full bg-primary-light/[0.1] shadow-sm p-[32px] backdrop-opacity-100 rounded-lg md:max-w-[425px] leading-relaxed
@@ -209,6 +209,7 @@ const LocationSection = () => {
   return(
     <Section
       className={`flex flex-col gap-8 items-center justify-center`}
+      id="location-section"
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>
         Waktu & Tempat Acara
@@ -264,7 +265,7 @@ const GallerySection = () => {
   return(
     <Section
       className={`flex flex-col items-center gap-4 justify-center`}
-      id="bride-section"
+      id="gallery-section"
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Gallery</h2>
       <div className="relative w-full flex flex-col items-center justify-center  max-w-[425px]
@@ -331,6 +332,7 @@ const GreetingSection = () => {
   return(
     <Section
       className={`flex flex-col items-center gap-4 justify-center`}
+      id="greeting-section"
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Ucapan & Doa</h2>
       <div className="flex flex-row justify-center gap-10 w-full max-w-xl md:w-1/2">
@@ -443,6 +445,7 @@ const GiftSection = () => {
   return(
     <Section
       className={`flex flex-col items-center gap-4 justify-center`}
+      id="greeting-section"
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Kirim Hadiah</h2>
       <p className="text-center text-xl text-primary-dark w-full md:max-w-lg">Tanpa mengurangi rasa hormat, bagi anda yang ingin memberikan tanda kasih untuk mempelai, dapat melalui tombol menu berikut:</p>
@@ -484,6 +487,7 @@ const GiftSection = () => {
 const ClosingSection = () => (
   <Section
     className={`flex flex-col items-center justify-center`}
+    id="closing-section"
   >
     <div className="w-full sm:w-1/2 max-w-[450px] flex flex-col items-center gap-6 relative pt-[32px]">
       <Image src={Ornament4} width={400} height={150} alt="ornament4" className="absolute top-[-80px] min-[375px]:top-[-120px] left-1/2 translate-x-[-50%]"/>
@@ -501,6 +505,71 @@ const ClosingSection = () => (
   </Section>
 );
 
+const Navbar = () => {
+  const navitems = [
+    {name: "Home", icon: "home", id: "welcome-section"},
+    {name: "Mempelai", icon: "group", id: "bride-section"},
+    {name: "Tanggal", icon: "event_available", id: "location-section"},
+    {name: "Galeri", icon: "image", id: "gallery-section"},
+    {name: "Ucapan", icon: "chat", id:"greeting-section"},
+  ]
+
+  const [clicked, setIsClicked] = useState(false);
+  const [activeTab, setActiveTab] = useState(navitems[0].id);
+  const [isVisible, setIsVisible] = useState(true);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [sections, setSections] = useState<HTMLElement[]>([]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.scrollY;
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect && rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+          setActiveTab(section.id);
+        }
+      });
+      setIsVisible(prevScrollPos > currentScrollPos || currentScrollPos < 10 || clicked);
+      setPrevScrollPos(currentScrollPos);
+      setIsClicked(false);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [prevScrollPos, clicked, sections]);
+
+  useEffect(() => {
+    // Get all the sections and store them in state
+    const sectionElements = document.querySelectorAll<HTMLElement>('section');
+    setSections(Array.from(sectionElements));
+  }, []);
+
+  const onClick = (id:string) => {
+    setActiveTab(id);
+    setIsClicked(true);
+    const element = document.getElementById(id);
+    if(element){
+      element.scrollIntoView();
+    }
+  }
+  return(
+    <nav className={`transition-all ${!isVisible ? "opacity-0 invisible absolute z-[-1] scale-0" : "opacity-100 visible fixed scale-100"} fixed flex flex-col right-[10px] bottom-1/2 translate-x-0 translate-y-1/2 sm:flex-row sm:bottom-[10px] sm:right-1/2 sm:translate-x-1/2 sm:translate-y-0 px-4 py-2 bg-primary-light/[0.5] rounded-lg shadow-md gap-8 sm:text-md text-white/[0.6]`}>
+      {
+        navitems.map((el,idx) => (
+          <a className={`flex-1 flex flex-col items-center cursor-pointer transition-colors ease-in duration-300 ${activeTab === el.id ? "text-white font-bold": ""}`} key={`${el.name}-${idx}`} onClick={()=> onClick(el.id)}>
+            <span className="material-symbols-outlined">
+              {el.icon}
+            </span>
+            <p className="opacity-0 invisible absolute z-[-1] scale-0 sm:opacity-100 sm:visible sm:static sm:scale-100">{el.name}</p>
+          </a>
+        ))
+      }
+    </nav>
+  );
+};
+
 export default function Home() {
   const [start, setStart] = useState(false);
   const refAudio = useRef<HTMLAudioElement>(null);
@@ -510,6 +579,7 @@ export default function Home() {
       refAudio.current.play();
     }
   },[start]);
+
   return (
     <>
       <Head>
@@ -529,6 +599,7 @@ export default function Home() {
         <GreetingSection/>
         <GiftSection/>
         <ClosingSection/>
+        {start && <Navbar/>}
         {start && <audio
           ref={refAudio}
           loop
