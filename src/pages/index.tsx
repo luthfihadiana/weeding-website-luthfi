@@ -1,13 +1,18 @@
 import { Transition } from "@headlessui/react";
 import Head from "next/head";
 import Image from "next/image";
-import { ReactNode, RefObject, useEffect, useRef, useState } from "react";
+import { Fragment, ReactNode, RefObject, useEffect, useRef, useState } from "react";
 import Logo from "../../public/images/logo.png"
 import Ornament3 from "../../public/images/ornament-3.png";
 import Ornament4 from "../../public/images/ornament-4.png";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay"
+import { GreetingRes, ReqGreeting } from "@/types";
+import dayjs from "dayjs";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL??"", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY??"");
 
 
 export function useIsVisible(ref: RefObject<HTMLElement>): boolean {
@@ -329,13 +334,64 @@ const GreetingSection = () => {
   const [show, setShow] =  useState(false);
   const [name, setName] = useState("");
   const [isPresent, setIsPresent] = useState(true);
+  const [message, setMessage] = useState("");
+  const [data, setData] = useState<GreetingRes>({
+    greeting: {},
+    numberGreeting: 0
+  });
+
+  useEffect(()=>{
+    const fetchData = async () => {
+      const response:GreetingRes = await fetch("/api/greeting", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;charset=UTF-8",
+        },
+      }).then(res => res.json())
+      setData(response)
+    }
+    fetchData()
+    const subscription = supabase
+      .channel('events')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'greeting' }, (payload) => {
+        fetchData();
+      })
+      .subscribe()
+    return () => {
+      subscription.unsubscribe()
+    }
+  },[])
+
+  const sendPost =  async () => {
+    const body:ReqGreeting = {
+      is_confirm: isPresent,
+      message,
+      alias_name: name,
+      id_user: 1
+    }
+    await fetch("/api/greeting", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      body: JSON.stringify({
+        data: body
+      })
+    })
+    setName("");
+    setIsPresent(true);
+    setMessage("");
+  };
+
   return(
     <Section
       className={`flex flex-col items-center gap-4 justify-center`}
       id="greeting-section"
     >
       <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Ucapan & Doa</h2>
-      <div className="flex flex-row justify-center gap-10 w-full max-w-xl md:w-1/2">
+      <div className="flex flex-row justify-center gap-10 w-full max-w-xl md:w-3/4">
         <div className="w-full bg-slate-100 rounded-xl shadow-md">
           <div className="w-full rounded-t-xl bg-primary-light p-4">
             <div className="flex align-middle gap-4">
@@ -349,38 +405,34 @@ const GreetingSection = () => {
               </div>
               <div>
                 <p className="text-white font-bold">Ucapan & Doa</p>
-                <p className="text-white">40 Pengirim</p>
+                <p className="text-white">{data.numberGreeting} Pengirim</p>
               </div>
             </div>
           </div>
           <div className="w-full h-80 p-4 overflow-scroll">
-            <div className="flex w-full p-1 justify-center">
-              <span className="p-2 bg-primary-light rounded-lg text-white">7 Desember 2024</span>
-            </div>
-            <div className="flex w-full">
-              <div className="flex align-end items-end gap-2 w-full mt-2 min-[425px]:w-3/4">
-                <div className="bg-white p-4 rounded-lg max-w-1/2">
-                  <div className="flex justify-between">
-                    <p className="text-primary-light">Luthfi</p>
-                    <span className="text-primary">~Hadir</span>
+            {
+              Object.keys(data.greeting).map(el => (
+                <Fragment key={`chat-${el}`}>
+                  <div className="flex w-full p-1 justify-center">
+                    <span className="p-2 bg-primary-light rounded-lg text-white">{el}</span>
                   </div>
-                  <p>Luthfi dadjsk adajkd nsjabdjkabd jksbjkdba ds</p>
-                </div>
-                <span className="text-primary-light">12:00</span>
-              </div>
-            </div>
-            <div className="flex w-full justify-end">
-              <div className="flex flex-row-reverse align-end items-end gap-2 w-full mt-2 min-[425px]:w-3/4">
-                <div className="bg-slate-200 p-4 rounded-lg max-w-1/2">
-                  <div className="flex justify-between">
-                    <p className="text-primary-light">Luthfi</p>
-                    <span className="text-primary">~Hadir</span>
-                  </div>
-                  <p>Luthfi dadjsk adajkd nsjabdjkabd jksbjkdba ds</p>
-                </div>
-                <span className="text-primary-light">12:00</span>
-              </div>
-            </div>
+                  {
+                    data.greeting[el].map(e => (
+                      <div className="flex w-full" key={`${el}-${e.id}-chat-bubble`}>
+                        <div className="flex align-end items-end gap-2 w-full mt-2 min-[425px]:w-3/4">
+                          <div className="flex flex-col gap-2 bg-white p-4 rounded-lg max-w-1/2">
+                            <p className="text-primary-light max-w-[100px] sm:max-w-[175px] lg:max-w-[300px] truncate">{e.alias_name}</p>
+                            <p>{e.message}</p>
+                            <span className={e.is_confirm ? "text-primary text-right": "text-zinc-600 text-right"}>~{e.is_confirm ? "Hadir": "Tidak hadir"}</span>
+                          </div>
+                          <span className="text-primary-light">{dayjs(e.created_at).format("HH:mm")}</span>
+                        </div>
+                      </div>
+                    ))
+                  }
+                </Fragment>
+              ))
+            }
           </div>
           <div className="w-full rounded-b-xl bg-slate-200 p-4" 
             onFocus={()=> {
@@ -428,9 +480,11 @@ const GreetingSection = () => {
               <textarea
                 className="rounded-lg flex-1 p-2 resize-y"
                 placeholder="Tuliskan pesanmu"
+                value={message}
+                onChange={(e)=> setMessage(e.target.value)}
               />
               <div className="h-min p-1 rounded-lg text-white bg-primary-light text-center flex align-middle justify-center cursor-pointer">
-                <span className="material-symbols-outlined">send</span>
+                <span className="material-symbols-outlined" onClick={sendPost}>send</span>
               </div>
             </div>
           </div>
