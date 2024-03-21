@@ -3,17 +3,25 @@ import Head from "next/head";
 import Image from "next/image";
 import { Fragment, ReactNode, RefObject, useEffect, useRef, useState } from "react";
 import Logo from "../../public/images/logo.png"
-import Ornament3 from "../../public/images/ornament-3.png";
-import Ornament4 from "../../public/images/ornament-4.png";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay"
-import { GreetingRes, ReqGreeting } from "@/types";
+import { GreetingRes, ReqGreeting, User, UserRes } from "@/types";
 import dayjs from "dayjs";
 import { createClient } from "@supabase/supabase-js";
+import { useSearchParams } from "next/navigation";
+import useSWR from "swr";
+import useSWRMutation from "swr/mutation";
+
+const fetcher = (url:string) => fetch(url,{
+  method: "GET",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json;charset=UTF-8",
+  },
+}).then(r => r.json());
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL??"", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY??"");
-
 
 export function useIsVisible(ref: RefObject<HTMLElement>): boolean {
   const [isIntersecting, setIntersecting] = useState(false);
@@ -56,14 +64,15 @@ const Section = ({children, className, id}:{
 const WelcomeSection = ({
   start,
   onStart,
-}:{onStart:()=> void, start:boolean}) => (
+  name,
+}:{onStart:()=> void, start:boolean, name:string}) => (
   <section
     className={`min-h-[calc(100vh-36px)] w-full flex flex-col items-center gap-6 justify-center`}
     id="welcome-section"
   >
     <h1 className={`text-4xl text-center font-aesthetic text-primary-light`}>
       The Weeding of<br/>
-      Luthfi & Astri
+      Astri & Luthfi
     </h1>
     <Image
       src={Logo}
@@ -75,7 +84,7 @@ const WelcomeSection = ({
       <h2 className="text-xl font-bold text-primary">Minggu, 12 Mei 2024</h2>
       <p className={`text-lg text-center my-4 text-primary-light`}>
         Special Invitation to: <br/>
-        <strong className="text-primary-dark">NAMA_TAMU_UNDANGAN</strong>
+        <strong className="text-primary-dark">{name}</strong>
       </p>
       <button 
         onClick={onStart}
@@ -330,45 +339,32 @@ const GallerySection = () => {
 }
 
 
-const GreetingSection = () => {
+const GreetingSection = ({user}:{user:User}) => {
   const [show, setShow] =  useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(user.user_name);
   const [isPresent, setIsPresent] = useState(true);
   const [message, setMessage] = useState("");
-  const [data, setData] = useState<GreetingRes>({
-    greeting: {},
-    numberGreeting: 0
-  });
+  const {data = {greeting:{}, numberGreeting: 0}, trigger} = useSWRMutation<GreetingRes>("/api/greeting", fetcher);
 
   useEffect(()=>{
-    const fetchData = async () => {
-      const response:GreetingRes = await fetch("/api/greeting", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json;charset=UTF-8",
-        },
-      }).then(res => res.json())
-      setData(response)
-    }
-    fetchData()
+    trigger();
     const subscription = supabase
       .channel('events')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'greeting' }, (payload) => {
-        fetchData();
+        trigger();
       })
       .subscribe()
     return () => {
       subscription.unsubscribe()
     }
-  },[])
+  },[trigger])
 
   const sendPost =  async () => {
     const body:ReqGreeting = {
       is_confirm: isPresent,
       message,
       alias_name: name,
-      id_user: 1
+      id_user: user.id,
     }
     await fetch("/api/greeting", {
       method: "POST",
@@ -411,9 +407,9 @@ const GreetingSection = () => {
           </div>
           <div className="w-full h-80 p-4 overflow-scroll">
             {
-              Object.keys(data.greeting).map(el => (
+              Object.keys(data.greeting).map((el,idx) => (
                 <Fragment key={`chat-${el}`}>
-                  <div className="flex w-full p-1 justify-center">
+                  <div className={`flex w-full p-1 justify-center ${idx > 0 ? "mt-[16px]" : ""}`}>
                     <span className="p-2 bg-primary-light rounded-lg text-white">{el}</span>
                   </div>
                   {
@@ -423,7 +419,7 @@ const GreetingSection = () => {
                           <div className="flex flex-col gap-2 bg-white p-4 rounded-lg max-w-1/2">
                             <p className="text-primary-light max-w-[100px] sm:max-w-[175px] lg:max-w-[300px] truncate">{e.alias_name}</p>
                             <p>{e.message}</p>
-                            <span className={e.is_confirm ? "text-primary text-right": "text-zinc-600 text-right"}>~{e.is_confirm ? "Hadir": "Tidak hadir"}</span>
+                            <span className={e.is_confirm ? "text-primary text-right": "text-zinc-400 text-right"}>~{e.is_confirm ? "Hadir": "Tidak hadir"}</span>
                           </div>
                           <span className="text-primary-light">{dayjs(e.created_at).format("HH:mm")}</span>
                         </div>
@@ -454,27 +450,29 @@ const GreetingSection = () => {
             >
               <label htmlFor="name" className="font-bold text-primary-light mb-2">Nama</label>
               <input type="text" id="name" className="rounded-lg p-1 mb-4" onChange={(e)=> setName(e.target.value)} value={name}/>
-              <label
-                htmlFor="toggleTwo"
-                className="flex items-center cursor-pointer select-none text-dark dark:text-white"
-              >
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id="toggleTwo"
-                    className="peer sr-only"
-                    checked={isPresent}
-                    onClick={()=> setIsPresent(prev => !prev)}
-                  />
-                  <div
-                    className="block h-8 rounded-full bg-slate-300 w-14"
-                  />
-                  <div
-                    className="absolute w-6 h-6 transition bg-white rounded-full dot dark:bg-dark-4 left-1 top-1 peer-checked:translate-x-full peer-checked:bg-primary-light"
-                  />
-                </div>
-                <span className="ml-2 font-bold text-primary-light">{isPresent ? "Hadir": "Tidak Hadir"}</span>
-              </label>
+              <div>
+                <label
+                  htmlFor="toggleTwo"
+                  className="flex items-center cursor-pointer select-none text-dark dark:text-white w-max"
+                >
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      id="toggleTwo"
+                      className="peer sr-only"
+                      checked={isPresent}
+                      onClick={()=> setIsPresent(prev => !prev)}
+                    />
+                    <div
+                      className="block h-8 rounded-full bg-slate-300 w-14"
+                    />
+                    <div
+                      className="absolute w-6 h-6 transition bg-white rounded-full dot dark:bg-dark-4 left-1 top-1 peer-checked:translate-x-full peer-checked:bg-primary-light"
+                    />
+                  </div>
+                  <span className="ml-2 font-bold text-primary-light">{isPresent ? "Hadir": "Tidak Hadir"}</span>
+                </label>
+              </div>
             </Transition>
             <div className="flex justify-between align-middle gap-2">
               <textarea
@@ -544,7 +542,7 @@ const ClosingSection = () => (
     id="closing-section"
   >
     <div className="w-full sm:w-1/2 max-w-[450px] flex flex-col items-center gap-6 relative pt-[32px]">
-      <Image src={Ornament4} width={400} height={150} alt="ornament4" className="absolute top-[-80px] min-[375px]:top-[-120px] left-1/2 translate-x-[-50%]"/>
+      <Image src="https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/ornament-4.png" width={400} height={150} alt="ornament4" className="absolute top-[-80px] min-[375px]:top-[-120px] left-1/2 translate-x-[-50%]"/>
       <p className="text-primary-dark text-center w-full text-xl">
         Merupakan sebuah kehormatan dan kebahagiaan bagi kami apabila Bapak/ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kedua mempelai
       </p>
@@ -552,9 +550,9 @@ const ClosingSection = () => (
         Hormat Kami yang berbahagia
       </p>
       <h2 className={`text-5xl text-center font-aesthetic text-primary-light`}>
-        Luthfi <br/>&<br/> Astri
+        Astri <br/>&<br/> Luthfi
       </h2>
-      <Image src={Ornament3} width={150} height={150} alt="ornament3"/>
+      <Image src="https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/ornament-3.png" width={150} height={150} alt="ornament3"/>
     </div>
   </Section>
 );
@@ -626,13 +624,60 @@ const Navbar = () => {
 
 export default function Home() {
   const [start, setStart] = useState(false);
+  const [play, setPlay] = useState(false);
   const refAudio = useRef<HTMLAudioElement>(null);
+  const [showTitleMusic, setShowTitleMusic] = useState(false);
+  const searchParams = useSearchParams()
+  const search = searchParams.get('username')
+  const {data:res, isLoading} = useSWR<UserRes>(search ? `/api/user?username=${search}` : null, fetcher);
+
   useEffect(()=>{
     if(!start) return;
     if(refAudio.current){
       refAudio.current.play();
+      setPlay(true);
+      setShowTitleMusic(true);
+      setTimeout(()=> {
+        setShowTitleMusic(false);
+      },4000);
     }
   },[start]);
+
+
+  const onClick = () => {
+    if(refAudio.current){
+      if(refAudio.current.paused){
+        refAudio.current.play();
+      }else{
+        refAudio.current.pause();
+      }
+      setPlay(prev => !prev);
+    }
+  }
+
+  if(isLoading){
+    return(
+      <div className="w-screen h-screen flex flex-col gap-4 items-center justify-center">
+        <div
+          className="inline-block h-[40px] w-[40px] animate-spin rounded-full border-4 border-solid border-zinc-500 border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+          role="status">
+          <span
+            className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+            >Loading...
+          </span>
+        </div>
+        <p className="animate-pulse">Loading ...</p>
+      </div>
+    );
+  }
+
+  if(!res?.data) {
+    return(
+      <div className="w-screen h-screen flex flex-col gap-4 items-center justify-center">
+        <p>Anda tidak diundang &#128517;</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -643,23 +688,52 @@ export default function Home() {
       <main
         className={`px-4 min-w-screen flex flex-col gap-8 ${!start ? "max-h-screen overflow-y-hidden" : ""}`}
       >
-        <WelcomeSection onStart={()=> {
-          setStart(true);
-        }} start={start}/>
-        <IntroSection/>
-        <BrideSection/>
-        <LocationSection/>
-        <GallerySection/>
-        <GreetingSection/>
-        <GiftSection/>
-        <ClosingSection/>
-        {start && <Navbar/>}
-        {start && <audio
-          ref={refAudio}
-          loop
-        >
-          <source src="/amin-paling-serius.mp3"/>
-        </audio>}
+        <WelcomeSection 
+          onStart={()=> {
+            setStart(true);
+          }} 
+          start={start}
+          name={res?.data?.user_name ?? ""}
+        />
+        {
+          start && (
+            <>
+              <IntroSection/>
+              <BrideSection/>
+              <LocationSection/>
+              <GallerySection/>
+              <GreetingSection user={res?.data}/>
+              {res?.data.is_show_gift ? <GiftSection/> : null}
+              <ClosingSection/>
+              <Navbar/>
+              <audio
+                ref={refAudio}
+                loop
+              >
+                <source src="/amin-paling-serius.mp3"/>
+              </audio>
+              <div className="cursor-pointer flex text-primary-dark text-[16px] gap-4 items-center justify-center fixed rounded-lg bottom-[10px] right-[10px] p-[8px] shadow-md bg-white" onClick={onClick}>
+                <span className="material-symbols-outlined text-[16px]">
+                  {play ? "pause":"play_arrow"}
+                </span>
+                <Transition
+                  show={showTitleMusic}
+                  enter="transition-all duration-200"
+                  enterFrom="opacity-0 scale-0 translate-x-full"
+                  enterTo="opacity-100 scale-100 translate-x-0"
+                  leave="transition-all duration-200"
+                  leaveFrom="opacity-100 scale-100 translate-x-0"
+                  leaveTo="opacity-0 scale-0 translate-x-full"
+                >
+                  <p className={`font-aesthetic text-[16px] transition-all ease-in duration-1000`}>
+                    <strong>Amin Paling Serius</strong> - <br/>
+                    Sal Priadi & Nadien Hamizah
+                  </p>
+                </Transition>
+              </div>
+            </>
+          )
+        }
       </main>
     </>
   );

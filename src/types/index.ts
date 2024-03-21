@@ -12,4 +12,15 @@ export type GreetingRes = {
   numberGreeting: number,
 }
 
+export type User =  {
+  id: number,
+  user_name:string,
+  created_at: string,
+  is_show_gift: boolean
+}
+
+export type UserRes = {
+  data: User | null,
+}
+
 export type ReqGreeting = Pick<GreetingData, "alias_name"|"is_confirm"|"message"|"id_user">

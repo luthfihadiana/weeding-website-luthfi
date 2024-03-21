@@ -32,7 +32,8 @@ body::before {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: -1;
-  background: url("http://www.transparenttextures.com/patterns/paper.png") no-repeat center, url("/images/background-transparent.png") no-repeat center;
+  background: url("http://www.transparenttextures.com/patterns/paper.png") no-repeat center,
+    url("https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/background-transparent.png") no-repeat center;
   background-size: cover, cover;
 }
 

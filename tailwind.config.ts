@@ -26,8 +26,8 @@ const config = {
       backgroundImage: {
         "gradient-red": "linear-gradient(to right, #ff416c, #ff4b2b)",
         "gradient-blue": "linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6)",
-        "ornament-1": "url('/images/ornament-1.png')",
-        "ornament-3": "url('/images/ornament-3.png')",
+        "ornament-1": "url('https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/ornament-1.png')",
+        "ornament-3": "url('https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/ornament-3.png')",
       },
       colors: {
         "primary": {
