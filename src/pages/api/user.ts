@@ -15,6 +15,7 @@ export default async function handler(
     .select('*')
     .ilike('user_name', `${req.query.username}`)
     .returns<User[]>();
+
     if(!data?.length) {
       res.status(200).json({
         data: {
@@ -25,7 +26,9 @@ export default async function handler(
           created_at: ""
         }
       });
+      return;
     }
+
     res.status(200).json({data: {
       ...data?.[0] as User,
       is_invited: true,
