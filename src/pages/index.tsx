@@ -1,7 +1,7 @@
 import { Transition } from "@headlessui/react";
 import Head from "next/head";
 import Image from "next/image";
-import { Fragment, ReactNode, RefObject, useEffect, useRef, useState } from "react";
+import { Fragment, ReactNode, RefObject, useEffect, useMemo, useRef, useState } from "react";
 import Logo from "../../public/images/logo.png"
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
@@ -134,12 +134,12 @@ const BrideSection = () => (
           height={200}
           className="rounded-full"
         />
-        <p className="text-xl font-bold font-aesthetic text-primary-dark text-center min-[375px]:text-2xl">Luthfi Ahmad MH</p>
+        <p className="text-xl font-bold font-aesthetic text-primary-dark text-center min-[375px]:text-2xl">Luthfi Ahmad MH, S.T</p>
         <p className="text-xl text-primary-light">Putra</p>
         <p className="text-center text-primary-dark text-sm min-[375px]:text-md">
-          Bapak <strong>Prof Dr Ana Hadiana M.Eng.Sc</strong>
+          Bapak <strong>Prof. Dr. Ana Hadiana, M.Eng.Sc</strong>
           <br/>& <br/>
-          Ibu <strong>dr Rosye Arosdiani Apip M.Kom</strong>
+          Ibu <strong>dr. Rosye Arosdiani Apip, M.Kom</strong>
         </p>
       </div>
       <div className="flex flex-col items-center gap-2 flex-1">
@@ -150,7 +150,7 @@ const BrideSection = () => (
           height={200}
           className="rounded-full"
         />
-        <p className="text-xl font-bold font-aesthetic text-primary-dark text-center min-[375px]:text-2xl">Astri Permatasari</p>
+        <p className="text-xl font-bold font-aesthetic text-primary-dark text-center min-[375px]:text-2xl">Astri Permatasari, S.T</p>
         <p className="text-xl text-primary-light">Putri</p>
         <p className="text-center text-primary-dark text-sm min-[375px]:text-md">
           Bapak <strong>Iyep Suhenri</strong> 
@@ -237,11 +237,11 @@ const LocationSection = () => {
       <div className="grid grid-cols-2 justify-items-center gap-4">
         <div className="flex flex-col items-center">
           <p className="text-3xl font-aesthetic text-primary-light">Akad</p>
-          <p className="text-xl text-primary-dark text-center">Pukul 10.00 WIB - Selesai</p>
+          <p className="text-xl text-primary-dark text-center">09.00 WIB - 10.00 WIB</p>
         </div>
         <div className="flex flex-col items-center">
           <p className="text-3xl font-aesthetic text-primary-light">Resepsi</p>
-          <p className="text-xl text-primary-dark text-center">Pukul 10.00 WIB - Selesai</p>
+          <p className="text-xl text-primary-dark text-center">11.00 WIB - 13.00 WIB</p>
         </div>
       </div>
       <div className="flex flex-col items-center text-center">
@@ -381,6 +381,8 @@ const GreetingSection = ({user}:{user:User}) => {
     setMessage("");
   };
 
+  const isValid = useMemo(()=> name !== "" && message !== "",[name, message]);
+
   return(
     <Section
       className={`flex flex-col items-center gap-4 justify-center`}
@@ -405,7 +407,7 @@ const GreetingSection = ({user}:{user:User}) => {
               </div>
             </div>
           </div>
-          <div className="w-full h-80 p-4 overflow-scroll">
+          <div className="w-full h-80 p-4 overflow-y-scroll">
             {
               Object.keys(data.greeting).map((el,idx) => (
                 <Fragment key={`chat-${el}`}>
@@ -414,9 +416,9 @@ const GreetingSection = ({user}:{user:User}) => {
                   </div>
                   {
                     data.greeting[el].map(e => (
-                      <div className="flex w-full" key={`${el}-${e.id}-chat-bubble`}>
-                        <div className="flex align-end items-end gap-2 w-full mt-2 min-[425px]:w-3/4">
-                          <div className="flex flex-col gap-2 bg-white p-4 rounded-lg max-w-1/2">
+                      <div className={`flex w-full ${user.id === e.id_user ? "justify-end" : ""}`} key={`${el}-${e.id}-chat-bubble`}>
+                        <div className={`flex align-end items-end gap-2 w-full mt-2 min-[425px]:w-3/4 ${user.id === e.id_user ? "flex-row-reverse" : ""}`}>
+                          <div className={`flex flex-col gap-2 ${user.id === e.id_user ? "bg-primary-light/[0.1]" : "bg-white"} p-4 rounded-lg max-w-1/2`}>
                             <p className="text-primary-light max-w-[100px] sm:max-w-[175px] lg:max-w-[300px] truncate">{e.alias_name}</p>
                             <p>{e.message}</p>
                             <span className={e.is_confirm ? "text-primary text-right": "text-zinc-400 text-right"}>~{e.is_confirm ? "Hadir": "Tidak hadir"}</span>
@@ -481,9 +483,12 @@ const GreetingSection = ({user}:{user:User}) => {
                 value={message}
                 onChange={(e)=> setMessage(e.target.value)}
               />
-              <div className="h-min p-1 rounded-lg text-white bg-primary-light text-center flex align-middle justify-center cursor-pointer">
+              <button 
+                className={`transition-all duration-75 ease-in-out h-min p-1 rounded-lg text-white bg-primary-light text-center flex align-middle justify-center cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-400`}
+                disabled={!isValid}
+              >
                 <span className="material-symbols-outlined" onClick={sendPost}>send</span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -671,11 +676,17 @@ export default function Home() {
     );
   }
 
-  if(!res?.data) {
+  if(!res?.data.is_invited) {
     return(
-      <div className="w-screen h-screen flex flex-col gap-4 items-center justify-center">
-        <p>Anda tidak diundang &#128517;</p>
-      </div>
+      <>
+        <Head>
+          <title>Weeding of Astri & Luthfi</title>
+          <meta property="og:title" content="Weeding of Astri & Luthfi" key="title" />
+        </Head>
+        <div className="w-screen h-screen flex flex-col gap-4 items-center justify-center">
+          <p>Anda tidak diundang &#128517;</p>
+        </div>
+      </>
     );
   }
 

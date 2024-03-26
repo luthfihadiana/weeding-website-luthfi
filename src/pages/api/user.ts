@@ -7,7 +7,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL??"", 
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<UserRes>,
+  res: NextApiResponse<UserRes|{data:null}>,
 ) {
   const fetchData = async () => {
     const { data } = await supabase
@@ -16,10 +16,19 @@ export default async function handler(
     .ilike('user_name', `${req.query.username}`)
     .returns<User[]>();
     if(!data?.length) {
-      res.status(200).json({data: null});
+      res.status(200).json({
+        data: {
+          id: 0,
+          user_name: "",
+          is_invited: false,
+          is_show_gift: false,
+          created_at: ""
+        }
+      });
     }
     res.status(200).json({data: {
       ...data?.[0] as User,
+      is_invited: true,
     }});
   }
 
