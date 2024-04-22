@@ -504,6 +504,10 @@ const GreetingSection = ({user}:{user:User}) => {
 
 const GiftSection = () => {
   const [show, setShow] = useState(false);
+  const onCopyAccountNumber = (s:string) =>{
+    navigator.clipboard.writeText(s);
+    alert("nomor rekening sudah tersalin")
+  }
   return(
     <Section
       className={`flex flex-col items-center gap-4 justify-center`}
@@ -525,7 +529,12 @@ const GiftSection = () => {
               <p>a.n.</p>
               <p className="font-bold">Astri Permatasari</p>
             </div>
-            <button className="w-full p-2 mt-2 text-black font-bold bg-white shadow-md rounded-lg">Salin rekening</button>
+            <button 
+              className="w-full p-2 mt-2 text-black font-bold bg-white shadow-md rounded-lg hover:bg-white/50"
+              onClick={()=> onCopyAccountNumber("1260011611802")}
+            >
+              Salin rekening
+            </button>
           </div>
         </div>
         <div>
@@ -538,7 +547,12 @@ const GiftSection = () => {
               <p>a.n.</p>
               <p className="font-bold">Luthfi Ahmad M. H.</p>
             </div>
-            <button className="w-full p-2 mt-2 text-black font-bold bg-white shadow-md rounded-lg">Salin rekening</button>
+            <button 
+              className="w-full p-2 mt-2 text-black font-bold bg-white shadow-md rounded-lg hover:bg-white/50"
+              onClick={()=> onCopyAccountNumber("7772698600")}
+            >
+                Salin rekening
+              </button>
           </div>
         </div>
       </div>
