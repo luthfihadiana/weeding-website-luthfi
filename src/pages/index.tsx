@@ -129,22 +129,6 @@ const BrideSection = () => (
       <div className="flex flex-col items-center gap-2 flex-1">
         <Image
           src="https://picsum.photos/id/64/200/200"
-          alt="pengantin pria"
-          width={200}
-          height={200}
-          className="rounded-full"
-        />
-        <p className="text-xl font-bold font-aesthetic text-primary-dark text-center min-[375px]:text-2xl">Luthfi Ahmad MH, S.T</p>
-        <p className="text-xl text-primary-light">Putra</p>
-        <p className="text-center text-primary-dark text-sm min-[375px]:text-md">
-          Bapak <strong>Prof. Dr. Ana Hadiana, M.Eng.Sc</strong>
-          <br/>& <br/>
-          Ibu <strong>dr. Rosye Arosdiani Apip, M.Kom</strong>
-        </p>
-      </div>
-      <div className="flex flex-col items-center gap-2 flex-1">
-        <Image
-          src="https://picsum.photos/id/64/200/200"
           alt="pengantin wanita"
           width={200}
           height={200}
@@ -158,6 +142,23 @@ const BrideSection = () => (
           Ibu <strong>Titin Maryatin</strong>
         </p>
       </div>
+      <div className="flex flex-col items-center gap-2 flex-1">
+        <Image
+          src="https://picsum.photos/id/64/200/200"
+          alt="pengantin pria"
+          width={200}
+          height={200}
+          className="rounded-full"
+        />
+        <p className="text-xl font-bold font-aesthetic text-primary-dark text-center min-[375px]:text-2xl">Luthfi Ahmad MH, S.T</p>
+        <p className="text-xl text-primary-light">Putra</p>
+        <p className="text-center text-primary-dark text-sm min-[375px]:text-md">
+          Bapak <strong>Prof. Dr. Ana Hadiana, M.Eng.Sc</strong>
+          <br/>& <br/>
+          Ibu <strong>dr. Rosye Arosdiani Apip, M.Kom</strong>
+        </p>
+      </div>
+      
     </div>
   </Section>
 )
@@ -248,7 +249,9 @@ const LocationSection = () => {
         <p className="text-3xl font-bold text-center font-aesthetic text-primary-light">
           Lokasi 
         </p>
-        <p className="text-lg text-primary font-bold">Lobby Grand Metropolitan Mall</p>
+        <p className="text-lg text-primary font-bold">
+          Ballroom Grand Metropolitan Mall Bekasi (Lantai 4)
+        </p>
         <p className="text-lg text-primary-dark">Jl. KH. Noer Ali, RT.007/RW.003, Pekayon Jaya, Kec. Bekasi Sel., Kota Bks, Jawa Barat 17148</p>
         <a
           target="_blank" href="https://www.google.com/maps/place/Grand+Metropolitan+Mall+Bekasi/@-6.2491109,106.9819604,17z/data=!3m1!4b1!4m6!3m5!1s0x2e698c3669bb7bc5:0x553935395094b20e!8m2!3d-6.2491162!4d106.9845353!16s%2Fg%2F1hh_nxtg3?entry=ttu" rel="noopener noreferrer" 
@@ -281,7 +284,9 @@ const GallerySection = () => {
       className={`flex flex-col items-center gap-4 justify-center`}
       id="gallery-section"
     >
-      <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>Gallery</h2>
+      <h2 className={`text-4xl text-center font-aesthetic text-primary-light`}>
+        Galeri
+      </h2>
       <div className="relative w-full flex flex-col items-center justify-center  max-w-[425px]
         before:content-[''] before:w-[100px] before:h-[100px] before:bg-ornament-1 before:absolute before:top-[-40px] before:left-[-8px] before:bg-contain before:bg-no-repeat before:rotate-[45deg] before:z-20
       ">
@@ -516,7 +521,7 @@ const GiftSection = () => {
             <p className="font-bold text-end">Mandiri</p>
             <div className="w-full mt-10">
               <p>Nomor Rekening</p>
-              <p className="font-bold">2131323</p>
+              <p className="font-bold">1260011611802</p>
               <p>a.n.</p>
               <p className="font-bold">Astri Permatasari</p>
             </div>
@@ -529,7 +534,7 @@ const GiftSection = () => {
             <p className="font-bold text-end">BCA</p>
             <div className="w-full mt-10">
               <p>Nomor Rekening</p>
-              <p className="font-bold">2131323</p>
+              <p className="font-bold">7772698600</p>
               <p>a.n.</p>
               <p className="font-bold">Luthfi Ahmad M. H.</p>
             </div>
