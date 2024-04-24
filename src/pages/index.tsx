@@ -13,6 +13,8 @@ import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
+const IMAGE_BUCKET = "https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding"
+
 const fetcher = (url:string) => fetch(url,{
   method: "GET",
   headers: {
@@ -128,7 +130,7 @@ const BrideSection = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 flex-wrap w-full lg:w-1/2">
       <div className="flex flex-col items-center gap-2 flex-1">
         <Image
-          src="https://picsum.photos/id/64/200/200"
+          src={`${IMAGE_BUCKET}/profile-acy.JPG`}
           alt="pengantin wanita"
           width={200}
           height={200}
@@ -144,7 +146,7 @@ const BrideSection = () => (
       </div>
       <div className="flex flex-col items-center gap-2 flex-1">
         <Image
-          src="https://picsum.photos/id/64/200/200"
+          src={`${IMAGE_BUCKET}/profile-upi.JPG`}
           alt="pengantin pria"
           width={200}
           height={200}
@@ -304,11 +306,17 @@ const GallerySection = () => {
           ]}
         >
           <CarouselContent>
-            {Array.from({ length: 5 }).map((_, index) => (
+            {Array.from({ length: 4 }).map((_, index) => (
               <CarouselItem key={index}>
                 <Card>
                   <CardContent className="flex aspect-square items-center justify-center p-6">
-                    <span className="text-4xl font-semibold">{index + 1}</span>
+                    <Image
+                      src={`${IMAGE_BUCKET}/galeri-${index+1}.JPG`}
+                      alt={`foto-gallery-${index+1}`}
+                      width={200}
+                      height={200}
+                      className="h-full w-auto"
+                    />
                   </CardContent>
                 </Card>
               </CarouselItem>
@@ -325,7 +333,7 @@ const GallerySection = () => {
               }} 
             >
               <CarouselContent>
-                {Array.from({ length: 5 }).map((_, index) => (
+                {Array.from({ length: 4 }).map((_, index) => (
                   <CarouselItem key={index} className="basis-1/2 min-[375px]:basis-1/3 flex justify-center">
                     <div className="bg-white rounded-lg w-[80px] aspect-square flex items-center justify-center shadow-sm" onClick={()=> onClickCursor(index)}>
                       <div className="flex justify-center align-center ">
@@ -566,7 +574,7 @@ const ClosingSection = () => (
     id="closing-section"
   >
     <div className="w-full sm:w-1/2 max-w-[450px] flex flex-col items-center gap-6 relative pt-[32px]">
-      <Image src="https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/ornament-4.png" width={400} height={150} alt="ornament4" className="absolute top-[-80px] min-[375px]:top-[-120px] left-1/2 translate-x-[-50%]"/>
+      <Image src={`${IMAGE_BUCKET}/ornament-4.png`} width={400} height={150} alt="ornament4" className="absolute top-[-80px] min-[375px]:top-[-120px] left-1/2 translate-x-[-50%]"/>
       <p className="text-primary-dark text-center w-full text-xl">
         Merupakan sebuah kehormatan dan kebahagiaan bagi kami apabila Bapak/ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kedua mempelai
       </p>
@@ -576,7 +584,7 @@ const ClosingSection = () => (
       <h2 className={`text-5xl text-center font-aesthetic text-primary-light`}>
         Astri <br/>&<br/> Luthfi
       </h2>
-      <Image src="https://iksdfewnwyyagmmiwcmq.supabase.co/storage/v1/object/public/assets-weeding/ornament-3.png" width={150} height={150} alt="ornament3"/>
+      <Image src={`${IMAGE_BUCKET}/ornament-3.png`} width={150} height={150} alt="ornament3"/>
     </div>
   </Section>
 );
