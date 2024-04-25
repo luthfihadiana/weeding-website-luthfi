@@ -73,7 +73,7 @@ const WelcomeSection = ({
     id="welcome-section"
   >
     <h1 className={`text-4xl text-center font-aesthetic text-primary-light`}>
-      The Weeding of<br/>
+      The Wedding of<br/>
       Astri & Luthfi
     </h1>
     <Image
@@ -707,8 +707,8 @@ export default function Home() {
     return(
       <>
         <Head>
-          <title>Weeding of Astri & Luthfi</title>
-          <meta property="og:title" content="Weeding of Astri & Luthfi" key="title" />
+          <title>Wedding of Astri & Luthfi</title>
+          <meta property="og:title" content="Wedding of Astri & Luthfi" key="title" />
         </Head>
         <div className="w-screen h-screen flex flex-col gap-4 items-center justify-center">
           <p>Anda tidak diundang &#128517;</p>
@@ -720,8 +720,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Weeding of Astri & Luthfi</title>
-        <meta property="og:title" content="Weeding of Astri & Luthfi" key="title" />
+        <title>Wedding of Astri & Luthfi</title>
+        <meta property="og:title" content="Wedding of Astri & Luthfi" key="title" />
       </Head>
       <main
         className={`px-4 min-w-screen flex flex-col gap-8 ${!start ? "max-h-screen overflow-y-hidden" : ""}`}
